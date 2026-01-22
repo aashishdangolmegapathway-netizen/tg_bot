@@ -4,6 +4,19 @@ import datetime
 from telegram import Update, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
+# Region definitions
+REGIONS = {
+    "asia": {"emoji": "🌏", "status": "Active"},
+    "eu": {"emoji": "🇪🇺", "status": "Active"},
+    "na": {"emoji": "🇺🇸", "status": "Active"},
+    "sa": {"emoji": "🇧🇷", "status": "Active"},
+    "oc": {"emoji": "🇦🇺", "status": "Active"},
+    "jp": {"emoji": "🇯🇵", "status": "Active"},
+    "kr": {"emoji": "🇰🇷", "status": "Active"},
+    "id": {"emoji": "🇮🇩", "status": "Active"},
+    "vn": {"emoji": "🇻🇳", "status": "Active"}
+}
+
 # Bot configuration
 BOT_TOKEN = os.environ.get("8474536328:AAHvN4DmB3z0ixjJn6MzW8jtEEgWYm4D7ZQ")
 
@@ -11,7 +24,7 @@ BOT_TOKEN = os.environ.get("8474536328:AAHvN4DmB3z0ixjJn6MzW8jtEEgWYm4D7ZQ")
 BOT_INFO = {
     "version": "2.0",
     "author": "FreeFireBot Team",
-    "description": "Free Fire Account Checker with process monitoring"
+    "description": "Free Fire Account Checker with region support"
 }
 
 PROCESS_STEPS = [
@@ -67,13 +80,27 @@ def cmd_about(update: Update, context: CallbackContext):
     update.message.reply_text(about_msg, parse_mode=ParseMode.MARKDOWN)
 
 def cmd_status(update: Update, context: CallbackContext):
+    # Get system status
+    cpu_load = psutil.cpu_percent()
+    memory_load = psutil.virtual_memory().percent
+    disk_load = psutil.disk_usage('/').percent
+    
+    # Generate region status
+    region_status = ""
+    for region, info in REGIONS.items():
+        emoji = info["emoji"]
+        status = info["status"]
+        region_status += f"{emoji} {region.upper()}: {status}\n"
+    
     status_msg = (
         "📊 *Bot Status*\n\n"
         f"Status: ✅ Online\n"
         f"Uptime: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"CPU Load: {psutil.cpu_percent()}%\n"
-        f"Memory: {psutil.virtual_memory().percent}%\n"
-        f"Disk: {psutil.disk_usage('/').percent}%"
+        f"CPU Load: {cpu_load}%\n"
+        f"Memory: {memory_load}%\n"
+        f"Disk: {disk_load}%\n\n"
+        "*Region Status:*\n"
+        f"{region_status}"
     )
     update.message.reply_text(status_msg, parse_mode=ParseMode.MARKDOWN)
 
